@@ -48,9 +48,9 @@ pcall(function()
 end)
 
 if game.GameId == 112249475259380 then
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/warung-indo.lua"))()
-	print("Warung Indo script loaded...")
-	return
+loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/warung-indo.lua"))()
+print("Warung Indo script loaded...")
+return
 end
 	
 local TweenService = game:GetService("TweenService")
