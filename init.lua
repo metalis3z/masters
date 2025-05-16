@@ -47,9 +47,23 @@ pcall(function()
     })
 end)
 
-if game.GameId == 112249475259380 then
-loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/warung-indo.lua"))()
-print("Warung Indo script loaded...")
+
+local MarketplaceService = game:GetService("MarketplaceService")
+
+local success, info = pcall(function()
+    return MarketplaceService:GetProductInfo(game.PlaceId)
+end)
+
+local gameName
+
+if success and info then
+    gameName = info.Name
 else
-loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/cars-mobil.lua"))()
+    warn("failed to retrieved game name...")
+end
+
+if gameName == "Warung Indo [VOICE CHAT]" then
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/warung-indo.lua"))()
+else
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/cars-mobil.lua"))()
 end
